@@ -45,7 +45,7 @@ We opted for a monolithic architecture, structured the codebase in Portuguese, a
 
 🚀 Technologies Used
 
-Java 17+
+Java 21
 
 Spring Boot
 
