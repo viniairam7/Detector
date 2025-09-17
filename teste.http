@@ -1,0 +1,12 @@
+### Criar um novo usuário
+POST http://localhost:8080/api/usuarios
+Content-Type: application/json
+
+{
+    "nome": "Teste",
+    "email": "teste@email.com",
+    "senha": "123"
+}
+
+### 2. Listar todos os usuários (GET)
+GET http://localhost:8080/api/usuarios
