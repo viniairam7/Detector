@@ -1,0 +1,1 @@
+// CustomException.java - Conteúdo exemplo

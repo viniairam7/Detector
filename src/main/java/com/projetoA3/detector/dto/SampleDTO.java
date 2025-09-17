@@ -1,0 +1,1 @@
+// SampleDTO.java - Conteúdo exemplo
