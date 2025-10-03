@@ -1,1 +1,0 @@
-// SampleEntity.java - Conteúdo exemplo
