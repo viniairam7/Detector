@@ -1,12 +1,22 @@
-### Criar um novo usuário
-POST http://localhost:8080/api/usuarios
+###
+# SEPARADOR: A linha acima com ### é OBRIGATÓRIA para separar os pedidos.
+
+# ENVIAR UM NOVO UTILIZADOR
+# Substitua o URL abaixo pelo endereço ngrok correto.
+POST https://503dc2e1c871.ngrok-free.app/api/usuarios
 Content-Type: application/json
 
 {
-    "nome": "Teste",
-    "email": "teste@email.com",
-    "senha": "123"
+    "nome": "Ale Valle",
+    "email": "aledovalle@email.com",
+    "senha": "4142"
 }
 
-### 2. Listar todos os usuários (GET)
-GET http://localhost:8080/api/usuarios
+###
+# SEPARADOR: A linha acima com ### é OBRIGATÓRIA.
+
+# LISTAR TODOS OS UTILIZADORES
+# Substitua o URL abaixo pelo mesmo endereço ngrok.
+GET https://2eb3a47404f0.ngrok-free.app/api/usuarios
+
+###
