@@ -13,20 +13,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // ADICIONEI ESTE CONSTRUTOR PARA TESTE
+    public SecurityConfig() {
+        System.out.println("\n\n\n>>>>>> SecurityConfig CARREGADO! Acesso a /api/** está PERMITIDO. <<<<<<\n\n\n");
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // Desabilita a proteção CSRF. Essencial para permitir requisições POST 
-            // de clientes como Postman ou arquivos .http.
             .csrf(AbstractHttpConfigurer::disable) 
             .authorizeHttpRequests(authorize -> authorize
-              
-                // AQUI ESTÁ A MUDANÇA:
-                // Permite TODAS as requisições (GET, POST, PUT, DELETE, etc.) 
-                // para qualquer endpoint que comece com /api/
                 .requestMatchers("/api/**").permitAll() 
-                
-                // Exige autenticação para qualquer outra requisição (se houver no futuro)
                 .anyRequest().authenticated()
             );
         return http.build();

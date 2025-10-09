@@ -1,18 +1,7 @@
 package com.projetoA3.detector.entity;
 
+import jakarta.persistence.*;
 import java.util.List;
-
-import jakarta.persistence.CascadeType; // Ensure this is the correct package for the Usuarios class
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "cartoes")
@@ -23,7 +12,7 @@ public class Cartao {
     private Long id;
 
     @Column(nullable = false)
-    private String numero; // Armazenaremos apenas os 4 últimos dígitos por segurança
+    private String numero;
 
     @Column(nullable = false)
     private String validade;
@@ -38,6 +27,7 @@ public class Cartao {
     @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transacao> transacoes;
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -85,6 +75,5 @@ public class Cartao {
     public void setTransacoes(List<Transacao> transacoes) {
         this.transacoes = transacoes;
     }
-
-    
 }
+

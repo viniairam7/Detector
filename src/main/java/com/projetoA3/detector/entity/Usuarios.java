@@ -23,6 +23,20 @@ public class Usuarios {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Cartao> cartoes;
 
+    // Campo para o soft delete
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    // Getters e Setters (Todos incluídos)
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setNome(String nome) {
         this.nome = nome;
     }
@@ -47,5 +61,20 @@ public class Usuarios {
         return senha;
     }
 
-    
+    public List<Cartao> getCartoes() {
+        return cartoes;
+    }
+
+    public void setCartoes(List<Cartao> cartoes) {
+        this.cartoes = cartoes;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
 }
+

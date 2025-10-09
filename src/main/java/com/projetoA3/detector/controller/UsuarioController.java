@@ -1,6 +1,8 @@
 package com.projetoA3.detector.controller;
 
 import com.projetoA3.detector.dto.UsuarioDTO;
+import com.projetoA3.detector.entity.HistoricoUsuario;
+import com.projetoA3.detector.entity.UsuarioOmitido;
 import com.projetoA3.detector.entity.Usuarios;
 import com.projetoA3.detector.service.UsuarioServico;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // <-- ESTA É A LINHA QUE FALTAVA
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -21,6 +23,7 @@ public class UsuarioController {
         this.usuarioServico = usuarioServico;
     }
 
+    // MÉTODO POST PARA CRIAR USUÁRIO (ESTAVA EM FALTA)
     @PostMapping
     public ResponseEntity<Usuarios> criarUsuario(@RequestBody UsuarioDTO usuarioDto) {
         Usuarios novoUsuario = new Usuarios();
@@ -35,7 +38,33 @@ public class UsuarioController {
 
     @GetMapping
     public ResponseEntity<List<Usuarios>> listarTodosUsuarios() {
-        List<Usuarios> usuarios = usuarioServico.listarTodos();
-        return ResponseEntity.ok(usuarios);
+        return ResponseEntity.ok(usuarioServico.listarTodos());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuarios> atualizarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) {
+        return usuarioServico.atualizarUsuario(id, usuarioDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/historico")
+    public ResponseEntity<List<HistoricoUsuario>> getHistoricoUsuario(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioServico.listarHistorico(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> omitirUsuario(@PathVariable Long id) {
+        if (usuarioServico.omitirUsuario(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/omitidos")
+    public ResponseEntity<List<UsuarioOmitido>> getOmitidos() {
+        return ResponseEntity.ok(usuarioServico.listarOmitidos());
     }
 }
+

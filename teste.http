@@ -12,6 +12,7 @@ Content-Type: application/json
     "senha": "4142"
 }
 
+<<<<<<< HEAD
 ###
 # SEPARADOR: A linha acima com ### é OBRIGATÓRIA.
 
@@ -20,3 +21,26 @@ Content-Type: application/json
 GET https://2eb3a47404f0.ngrok-free.app/api/usuarios
 
 ###
+=======
+### Criar um novo utilizador através da Internet
+POST https://2eb3a47404f0.ngrok-free.app/api/usuarios
+Content-Type: application/json
+
+{
+    "nome": "Amigo Teste2345",
+    "email": "amigo@1235email.com",
+    "senha": "122512342"
+}
+
+### 2. Listar todos os usuários (GET)
+GET http://localhost:8080/api/usuarios
+
+###
+# ATUALIZAR O USUÁRIO COM ID = 1
+PUT http://localhost:8080/api/usuarios/1
+Content-Type: application/json
+
+{
+    "nome": "Teste put2"
+}
+>>>>>>> a790fdf (Feat: Implementação do CRUD)
