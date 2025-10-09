@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar o arquivo de configuração com senhas
+/src/main/resources/application.properties
