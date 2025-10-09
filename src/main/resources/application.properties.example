@@ -1,0 +1,16 @@
+spring.application.name=detentor
+
+# ===============================================
+# CONFIGURAÇÃO DO BANCO DE DADOS POSTGRESQL
+# ===============================================
+spring.datasource.url=jdbc:postgresql://SEU_IP_AQUI:5432/SEU_BANCO_DE_DADOS
+spring.datasource.username=SEU_USUARIO_AQUI
+spring.datasource.password=SUA_SENHA_AQUI
+
+# ===============================================
+# CONFIGURAÇÃO DO JPA/HIBERNATE
+# ===============================================
+spring.jpa.hibernate.ddl-auto=update 
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect

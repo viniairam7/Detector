@@ -2,7 +2,6 @@ package com.projetoA3.detector.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,10 +16,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
+            // Desabilita a proteção CSRF. Essencial para permitir requisições POST 
+            // de clientes como Postman ou arquivos .http.
+            .csrf(AbstractHttpConfigurer::disable) 
             .authorizeHttpRequests(authorize -> authorize
               
-                .requestMatchers("/api/usuarios").permitAll()
+                // AQUI ESTÁ A MUDANÇA:
+                // Permite TODAS as requisições (GET, POST, PUT, DELETE, etc.) 
+                // para qualquer endpoint que comece com /api/
+                .requestMatchers("/api/**").permitAll() 
+                
+                // Exige autenticação para qualquer outra requisição (se houver no futuro)
                 .anyRequest().authenticated()
             );
         return http.build();
