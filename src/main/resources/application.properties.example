@@ -18,4 +18,4 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 # Chave secreta para assinar os tokens JWT
 # IMPORTANTE: Em produção, use um valor longo e aleatório (ex: um gerador de GUID ou Base64)
-jwt.secret=minhachavesecreta1234567891011121314151617181920
+jwt.secret=allexandredovalle1234567891011121314151617181920
