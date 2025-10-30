@@ -1,5 +1,5 @@
 # Etapa 1: Build com Maven
-FROM maven:3.9.6-jdk-21 AS build
+FROM maven:3.9.11-jdk-21 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
