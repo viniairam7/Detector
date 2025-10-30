@@ -7,6 +7,9 @@ public class TransacaoDTO {
     private BigDecimal valor;
     private String estabelecimento;
     private Long cartaoId; // ID do cartão que realizou a compra
+    private double latitude;
+    private double longitude;
+    private String ipAddress;
 
     // Getters e Setters
     public BigDecimal getValor() {
@@ -32,4 +35,29 @@ public class TransacaoDTO {
     public void setCartaoId(Long cartaoId) {
         this.cartaoId = cartaoId;
     }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
 }
