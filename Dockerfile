@@ -16,5 +16,5 @@ FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 # Este comando copia o JAR que foi gerado
 COPY --from=build /app/target/*.jar app.jar 
-EXPOSE 8080 # Porta da sua aplicação
+EXPOSE 8080 
 ENTRYPOINT ["java", "-jar", "app.jar"]
