@@ -1,5 +1,7 @@
 package com.projetoA3.detector.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
+import com.fasterxml.jackson.annotation.JsonManagedReference; // Importe esta
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -20,10 +22,14 @@ public class Cartao {
     @Column(nullable = false)
     private String nomeTitular;
 
+    // Apenas UMA declaração do campo 'usuario'
+    @JsonBackReference // Com a anotação
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuarios usuario;
     
+    // Apenas UMA declaração do campo 'transacoes'
+    @JsonManagedReference // Com a anotação
     @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transacao> transacoes;
 
@@ -76,4 +82,3 @@ public class Cartao {
         this.transacoes = transacoes;
     }
 }
-

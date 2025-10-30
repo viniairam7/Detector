@@ -1,11 +1,10 @@
 package com.projetoA3.detector.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-// Importação necessária para o tipo "Point" do PostGIS
-import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Point; // Importação do PostGIS
 
 @Entity
 @Table(name = "transacoes")
@@ -24,25 +23,20 @@ public class Transacao {
     @Column(nullable = false)
     private LocalDateTime dataHora;
 
+    // Apenas UMA declaração do campo 'cartao'
+    @JsonBackReference // Com a anotação
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cartao_id", nullable = false)
     private Cartao cartao;
 
-    // --- CAMPO ADICIONADO PARA POSTGIS ---
-    /**
-     * Armazena a geolocalização da transação (Latitude/Longitude).
-     * O tipo "Point" é do PostGIS (via biblioteca JTS).
-     * A "definition" especifica o tipo no banco e o SRID 4326 (padrão para GPS).
-     */
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point localizacao;
 
-    // --- CAMPO ADICIONADO PARA IP ---
     @Column
     private String ipAddress;
 
     
-    // --- Getters e Setters ---
+    // Getters e Setters
     
     public Long getId() {
         return id;
@@ -83,8 +77,6 @@ public class Transacao {
     public void setCartao(Cartao cartao) {
         this.cartao = cartao;
     }
-
-    // --- GETTERS E SETTERS PARA OS NOVOS CAMPOS ---
 
     public Point getLocalizacao() {
         return localizacao;
