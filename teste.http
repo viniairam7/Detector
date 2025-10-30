@@ -1,19 +1,30 @@
 ### Criar um novo utilizador através da Internet
-POST http://localhost:5432/api/usuarios
+POST http://localhost:8080/api/usuarios
 Content-Type: application/json
 
 {
-    "nome": "Amigo Teste2345",
-    "email": "amigo@1235email.com",
-    "senha": "122512342"
+    "nome": "Amigo Teste234w235",
+    "email": "amigo@1232335email.com",
+    "senha": "122512323242"
 }
 
 ### 2. Listar todos os usuários (GET)
 GET http://localhost:8080/api/usuarios
 
+### PASSO 2: Fazer Login (Autenticar)
+# @name loginRequest
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "amigo@1232335email.com",
+    "senha": "122512323242"
+}
+
 ### 3. Atualizar um usuário existente (PUT)
 PUT http://localhost:8080/api/usuarios/1
 Content-Type: application/json
+
 
 {
     "nome": "Teste put1"
