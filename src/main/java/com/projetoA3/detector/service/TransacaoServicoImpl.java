@@ -98,7 +98,7 @@ public class TransacaoServicoImpl implements TransacaoServico {
                     // *** MUDANÇA PRINCIPAL AQUI ***
                     // Em vez de imprimir no log, lançamos a exceção.
                     // Isso vai parar o método e retornar um erro 400 para o usuário.
-                    throw new FraudDetectedException("ALERTA DE FRAUDE: VIAGEM IMPOSSÍVEL DETETADA!");
+                    throw new FraudDetectedException("ALERTA DE FRAUDE: VIAGEM IMPOSSÍVEL DETECTADA!");
                 }
             }
         }
