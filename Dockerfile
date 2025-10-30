@@ -1,6 +1,5 @@
 # Etapa 1: Build com Maven
-# Alterado para usar a imagem JDK estável e o Maven Wrapper (mvnw)
-FROM openjdk:21-jdk-slim AS build 
+FROM maven:3-openjdk-21-slim AS build 
 WORKDIR /app
 
 COPY mvnw .
