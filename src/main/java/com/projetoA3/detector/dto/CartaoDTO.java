@@ -1,12 +1,21 @@
 package com.projetoA3.detector.dto;
 public class CartaoDTO {
 
+    private Long id; 
     private String numero;
     private String validade;
     private String nomeTitular;
     private Long usuarioId; 
 
-  
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getNumero() {
         return numero;
     }

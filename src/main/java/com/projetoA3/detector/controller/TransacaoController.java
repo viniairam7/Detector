@@ -24,8 +24,8 @@ public class TransacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Transacao> registrarTransacao(@RequestBody TransacaoDTO transacaoDto) {
+    public ResponseEntity<TransacaoDTO> registrarTransacao(@RequestBody TransacaoDTO transacaoDto) {
         Transacao transacaoSalva = transacaoServico.registrarTransacao(transacaoDto);
-        return new ResponseEntity<>(transacaoSalva, HttpStatus.CREATED);
+        return new ResponseEntity<>(transacaoDto, HttpStatus.CREATED);
     }
 }

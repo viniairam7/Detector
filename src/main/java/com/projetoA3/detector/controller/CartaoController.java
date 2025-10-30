@@ -7,10 +7,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication; // Importe este
+import org.springframework.security.core.context.SecurityContextHolder; // Importe este
+import org.springframework.web.bind.annotation.GetMapping; // Importe este
 
 import com.projetoA3.detector.dto.CartaoDTO;
 import com.projetoA3.detector.entity.Cartao;
 import com.projetoA3.detector.service.CartaoServico;
+import java.util.List; // <--- ADICIONE ESTA LINHA
 
 @RestController
 @RequestMapping("/api/cartoes")
@@ -28,4 +32,21 @@ public class CartaoController {
         Cartao cartaoSalvo = cartaoServico.adicionarCartao(cartaoDto);
         return new ResponseEntity<>(cartaoSalvo, HttpStatus.CREATED);
     }
+
+    @GetMapping("/meus")
+    public ResponseEntity<List<CartaoDTO>> getCartoesDoUsuario() {
+        
+        // 1. Obtém o objeto de autenticação (contém o email do usuário logado)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        // 2. O 'getName()' na Autenticação é o email, conforme configurado no CustomUserDetailsService
+        String emailUsuario = authentication.getName(); 
+
+        // 3. Chama o serviço para buscar os cartões
+        List<CartaoDTO> cartoes = cartaoServico.buscarCartoesPorUsuarioEmail(emailUsuario);
+
+        // 4. Retorna a lista de cartões (DTOs)
+        return ResponseEntity.ok(cartoes);
+    }
+
 }

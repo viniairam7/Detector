@@ -10,5 +10,5 @@ import java.util.List;
 public interface CartaoRepositorio extends JpaRepository<Cartao, Long> {
 
     // "Busque uma lista de Cartoes pelo Id do seu atributo 'usuario'"
-    List<Cartao> findByUsuarioId(Long usuarioId);
+    List<Cartao> findByUsuarioEmail(String email);
 }

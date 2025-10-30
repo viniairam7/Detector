@@ -1,24 +1,24 @@
 ### PASSO 1: Criar um novo usuário
 # Corrigido para a porta 8080
-POST http://localhost:8080/api/usuarios
+POST https://b51950b57160.ngrok-free.app/api/usuarios
 Content-Type: application/json
 
 {
-    "nome": "Usuário Teste Válido",
-    "email": "teste@valido.com",
-    "senha": "senha123"
+    "nome": "Usuário Teste2 Válido",
+    "email": "teste@valido2.com",
+    "senha": "senha1233"
 }
 
 ### --------------------------------------------------
 
 ### PASSO 2: Fazer Login (com o usuário ACIMA)
 # @name loginRequest
-POST http://localhost:8080/api/auth/login
+POST https://cd5065193291.ngrok-free.app/api/auth/login
 Content-Type: application/json
 
 {
-    "email": "teste@valido.com",
-    "senha": "senha123"
+    "email": "teste@valido2.com",
+    "senha": "senha1233"
 }
 
 ### --------------------------------------------------
@@ -27,7 +27,7 @@ Content-Type: application/json
 # Pega o token da resposta do 'loginRequest' acima
 @jwt = {{loginRequest.response.body.token}}
 
-GET http://localhost:8080/api/usuarios
+GET https://cd5065193291.ngrok-free.app/api/cartoes/meus
 Authorization: Bearer {{jwt}}
 
 
@@ -57,15 +57,15 @@ Authorization: Bearer {{jwt}}
 
 @jwt = {{loginRequest.response.body.token}}
 
-POST http://localhost:8080/api/cartoes
+POST https://b51950b57160.ngrok-free.app/api/cartoes
 Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 {
-    "numero": "1111222233335555",
-    "validade": "12/30",
-    "nomeTitular": "Usuário Teste Válido",
-    "usuarioId": 5
+    "numero": "1111222244445555",
+    "validade": "12/31",
+    "nomeTitular": "Usuário Teste2 Válido",
+    "usuarioId": 6
 }
 
 ### --------------------------------------------------
@@ -73,14 +73,14 @@ Authorization: Bearer {{jwt}}
 ### PASSO 7: REGISTRAR TRANSAÇÃO COM LOCALIZAÇÃO
 # (Você precisa ter rodado o PASSO 6 para ter um cartão)
 
-POST http://localhost:8080/api/transacoes
+POST https://fd50aa4c717e.ngrok-free.app/api/transacoes
 Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 {
     "valor": 100.00,
     "estabelecimento": "Shopping Morumbi",
-    "cartaoId": 3, 
+    "cartaoId": 4, 
     "latitude": -23.6214,
     "longitude": -46.696,
     "ipAddress": "177.0.0.1"

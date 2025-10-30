@@ -8,6 +8,9 @@ import com.projetoA3.detector.repository.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class CartaoServicoImpl implements CartaoServico {
 
@@ -18,6 +21,17 @@ public class CartaoServicoImpl implements CartaoServico {
     public CartaoServicoImpl(CartaoRepositorio cartaoRepositorio, UsuarioRepositorio usuarioRepositorio) {
         this.cartaoRepositorio = cartaoRepositorio;
         this.usuarioRepositorio = usuarioRepositorio;
+    }
+
+    @Override
+    public List<CartaoDTO> buscarCartoesPorUsuarioEmail(String email) {
+        // 1. Busca as entidades
+        List<Cartao> cartoes = cartaoRepositorio.findByUsuarioEmail(email);
+        
+        // 2. Mapeia a lista de Entidades para a lista de DTOs
+        return cartoes.stream()
+                .map(this::convertToDto) // Chama o método auxiliar abaixo
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -34,5 +48,20 @@ public class CartaoServicoImpl implements CartaoServico {
         novoCartao.setUsuario(usuario);
         return cartaoRepositorio.save(novoCartao);
     }
+
+
+    private CartaoDTO convertToDto(Cartao cartao) {
+        CartaoDTO dto = new CartaoDTO();
+        
+        dto.setId(cartao.getId()); // <-- CORRIGIDO (agora existe no DTO)
+        dto.setNumero(cartao.getNumero());
+        dto.setValidade(cartao.getValidade()); // <-- CORRIGIDO (era getDataValidade)
+        dto.setNomeTitular(cartao.getNomeTitular());
+        dto.setUsuarioId(cartao.getUsuario().getId());
+        // A linha do 'limite' foi removida pois o campo não existe
+
+        return dto;
+    }
+
 } 
 

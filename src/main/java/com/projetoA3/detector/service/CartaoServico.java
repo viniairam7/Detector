@@ -2,6 +2,7 @@ package com.projetoA3.detector.service;
 
 import com.projetoA3.detector.dto.CartaoDTO;
 import com.projetoA3.detector.entity.Cartao;
+import java.util.List;
 
 public interface CartaoServico {
 
@@ -11,4 +12,5 @@ public interface CartaoServico {
      * @return O objeto Cartao que foi salvo no banco.
      */
     Cartao adicionarCartao(CartaoDTO cartaoDto);
+    List<CartaoDTO> buscarCartoesPorUsuarioEmail(String email);
 }

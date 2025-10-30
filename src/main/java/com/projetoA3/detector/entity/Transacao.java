@@ -1,6 +1,8 @@
 package com.projetoA3.detector.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ public class Transacao {
     @JoinColumn(name = "cartao_id", nullable = false)
     private Cartao cartao;
 
+    @JsonIgnore
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point localizacao;
 
