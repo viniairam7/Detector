@@ -5,6 +5,7 @@ import com.projetoA3.detector.entity.Cartao;
 import com.projetoA3.detector.entity.Transacao;
 import com.projetoA3.detector.repository.CartaoRepositorio;
 import com.projetoA3.detector.repository.TransacaoRepositorio;
+import com.projetoA3.detector.exception.FraudDetectedException; // IMPORTA A EXCEÇÃO
 
 // Imports necessários para a nova lógica
 import org.locationtech.jts.geom.Coordinate;
@@ -59,6 +60,8 @@ public class TransacaoServicoImpl implements TransacaoServico {
         novaTransacao.setLocalizacao(localizacaoPonto);
         novaTransacao.setIpAddress(transacaoDto.getIpAddress());
         
+        // Salva a transação. Se uma exceção for lançada abaixo, o @Transactional
+        // vai reverter (fazer rollback) deste save.
         Transacao transacaoSalva = transacaoRepositorio.save(novaTransacao);
 
         // --- INÍCIO DA LÓGICA DE DETECÇÃO DE FRAUDE ---
@@ -81,7 +84,8 @@ public class TransacaoServicoImpl implements TransacaoServico {
             double horasDecorridas = segundosDecorridos / 3600.0;
 
             // 8. Calcular a velocidade (evitar divisão por zero se o tempo for muito curto)
-            if (distanciaKm != null && horasDecorridas > (1.0 / 60.0)) { // Ignora se for menos de 1 minuto
+            // Ignora se for menos de 1 minuto (para evitar falsos positivos)
+            if (distanciaKm != null && horasDecorridas > (1.0 / 60.0)) { 
                 double velocidadeKmh = distanciaKm / horasDecorridas;
 
                 System.out.println("--- DEBUG DE VELOCIDADE ---");
@@ -91,20 +95,17 @@ public class TransacaoServicoImpl implements TransacaoServico {
                 System.out.println("---------------------------");
 
                 if (velocidadeKmh > VELOCIDADE_MAXIMA_KMH) {
-                    // *** ALERTA DE FRAUDE! ***
-                    // Aqui você implementaria o envio de e-mail, SMS ou notificação
-                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    System.err.println("ALERTA DE FRAUDE: VIAGEM IMPOSSÍVEL DETECTADA!");
-                    System.err.println("Usuário: " + cartao.getUsuario().getEmail());
-                    System.err.println("Cartão ID: " + cartao.getId());
-                    System.err.println("Velocidade: " + String.format("%.2f", velocidadeKmh) + " km/h");
-                    System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    // *** MUDANÇA PRINCIPAL AQUI ***
+                    // Em vez de imprimir no log, lançamos a exceção.
+                    // Isso vai parar o método e retornar um erro 400 para o usuário.
+                    throw new FraudDetectedException("ALERTA DE FRAUDE: VIAGEM IMPOSSÍVEL DETETADA!");
                 }
             }
         }
         
         // --- FIM DA LÓGICA DE DETECÇÃO DE FRAUDE ---
 
+        // Se nenhuma exceção foi lançada, a transação é válida.
         return transacaoSalva;
     }
 }

@@ -1,6 +1,6 @@
 package com.projetoA3.detector.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference; // Importe esta
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- IMPORTE ESTA LINHA
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -21,15 +21,18 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;
 
-    // Apenas UMA declaração do campo 'cartoes'
-    @JsonManagedReference // Com a anotação
+    // A anotação @JsonManagedReference foi trocada por @JsonIgnore
+    // para quebrar o loop de serialização de forma mais simples
+    @JsonIgnore // <-- ADICIONE ESTA LINHA
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Cartao> cartoes;
 
+    // Campo para o soft delete
     @Column(nullable = false)
     private boolean ativo = true;
 
-    // Getters e Setters
+    // Getters e Setters (Todos incluídos)
+
     public Long getId() {
         return id;
     }
@@ -38,28 +41,28 @@ public class Usuarios {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
-    }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    public String getEmail() {
-        return email;
+    public String getNome() {
+        return nome;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getSenha() {
-        return senha;
+    public String getEmail() {
+        return email;
     }
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public String getSenha() {
+        return senha;
     }
 
     public List<Cartao> getCartoes() {
