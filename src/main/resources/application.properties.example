@@ -1,0 +1,14 @@
+spring.application.name=detentor
+# PostgreSQL Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/Detector
+spring.datasource.username=detector_app
+spring.datasource.password=COLOQUE_SUA_SENHA_AQUI
+
+# JPA/Hibernate Configuration
+spring.jpa.hibernate.ddl-auto=update 
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# Chave secreta para assinar os tokens JWT
+jwt.secret=COLOQUE_UMA_CHAVE_SECRETA_LONGA_E_ALEATORIA_AQUI
