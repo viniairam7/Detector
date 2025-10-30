@@ -1,9 +1,7 @@
 # Etapa 1: Build com Maven
- FROM openjdk:21-jdk-slim AS build
+ FROM maven:3.9.6-openjdk-21 AS build
  WORKDIR /app
- COPY pom.xml .
- RUN mvn dependency:go-offline
- COPY src ./src
+ COPY . .
  RUN mvn clean package -DskipTests
  
  # Etapa 2: Runtime com JDK leve
