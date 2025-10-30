@@ -48,3 +48,44 @@ Authorization: Bearer {{jwt}}
 # Reutiliza o token da requisição 'loginRequest'
 DELETE http://localhost:8080/api/usuarios/5
 Authorization: Bearer {{jwt}}
+
+### --------------------------------------------------
+
+### PASSO 6: Criar um Cartão (precisa de ID de usuário)
+# (Vamos assumir que o usuário "teste@valido.com" é o ID 1)
+# Você precisa estar logado (ter rodado o PASSO 2)
+
+@jwt = {{loginRequest.response.body.token}}
+
+POST http://localhost:8080/api/cartoes
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "numero": "1111222233334444",
+    "validade": "12/30",
+    "nomeTitular": "Usuário Teste Válido",
+    "usuarioId": 1
+}
+
+### --------------------------------------------------
+### PASSO 7: REGISTRAR TRANSAÇÃO COM LOCALIZAÇÃO
+# @name transacaoRequest
+# (Você precisa ter rodado o PASSO 3 para ter um cartão)
+
+# ATENÇÃO: Troque o '1' no final da URL pelo ID do cartão que foi criado no Passo 3
+@cartaoId = 1 
+# @cartaoId = {{PASSO_3.response.body.id}}  <- Se sua extensão permitir
+
+POST http://localhost:8080/api/transacoes
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "valor": 150.75,
+    "estabelecimento": "Torre Eiffel",
+    "cartaoId": {{@cartaoId}},
+    "latitude": 48.8584,
+    "longitude": 2.2945,
+    "ipAddress": "192.168.1.1"
+}
