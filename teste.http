@@ -32,3 +32,43 @@ Content-Type: application/json
 
 ### 4. Deletar um usuário existente (DELETE)
 DELETE http://localhost:8080/api/usuarios/3
+
+
+
+
+
+
+
+
+
+### PASSO 1: Criar um novo usuário
+# Corrigido para a porta 8080
+POST http://localhost:8080/api/usuarios
+Content-Type: application/json
+
+{
+    "nome": "Usuário Teste Válido",
+    "email": "teste@valido.com",
+    "senha": "senha123"
+}
+
+### --------------------------------------------------
+
+### PASSO 2: Fazer Login (com o usuário ACIMA)
+# @name loginRequest
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "teste@valido.com",
+    "senha": "senha123"
+}
+
+### --------------------------------------------------
+
+### PASSO 3: Listar todos os usuários (AUTENTICADO)
+# Pega o token da resposta do 'loginRequest' acima
+@jwt = {{loginRequest.response.body.token}}
+
+GET http://localhost:8080/api/usuarios
+Authorization: Bearer {{jwt}}
