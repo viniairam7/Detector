@@ -1,6 +1,7 @@
 package com.projetoA3.detector.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference; // Importe esta
 import jakarta.persistence.*;
 import java.util.List;
@@ -29,6 +30,7 @@ public class Cartao {
     private Usuarios usuario;
     
     // Apenas UMA declaração do campo 'transacoes'
+    @JsonIgnore
     @JsonManagedReference // Com a anotação
     @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transacao> transacoes;

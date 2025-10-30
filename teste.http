@@ -62,30 +62,26 @@ Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 {
-    "numero": "1111222233334444",
+    "numero": "1111222233335555",
     "validade": "12/30",
     "nomeTitular": "Usuário Teste Válido",
     "usuarioId": 5
 }
 
 ### --------------------------------------------------
+### --------------------------------------------------
 ### PASSO 7: REGISTRAR TRANSAÇÃO COM LOCALIZAÇÃO
-# @name transacaoRequest
-# (Você precisa ter rodado o PASSO 3 para ter um cartão)
-
-# ATENÇÃO: Troque o '1' no final da URL pelo ID do cartão que foi criado no Passo 3
-@cartaoId = 1 
-# @cartaoId = {{PASSO_3.response.body.id}}  <- Se sua extensão permitir
+# (Você precisa ter rodado o PASSO 6 para ter um cartão)
 
 POST http://localhost:8080/api/transacoes
 Content-Type: application/json
 Authorization: Bearer {{jwt}}
 
 {
-    "valor": 150.75,
+    "valor": 50.00,
     "estabelecimento": "Torre Eiffel",
-    "cartaoId": {{@cartaoId}},
+    "cartaoId": 3, 
     "latitude": 48.8584,
     "longitude": 2.2945,
-    "ipAddress": "192.168.1.1"
+    "ipAddress": "8.8.8.8"
 }
