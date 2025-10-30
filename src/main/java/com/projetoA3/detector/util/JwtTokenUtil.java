@@ -66,7 +66,7 @@ public class JwtTokenUtil implements Serializable {
                 .setSubject(subject) // O "subject" do token será o e-mail do usuário
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-                .signWith(SignatureAlgorithm.HS512, secret) // Assina com o algoritmo HS512 e a chave secreta
+                .signWith(SignatureAlgorithm.HS256, secret) // Assina com o algoritmo HS256 e a chave secreta
                 .compact();
     }
 

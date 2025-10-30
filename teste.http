@@ -1,46 +1,3 @@
-### Criar um novo utilizador através da Internet
-POST http://localhost:8080/api/usuarios
-Content-Type: application/json
-
-{
-    "nome": "Amigo Teste234w235",
-    "email": "amigo@1232335email.com",
-    "senha": "122512323242"
-}
-
-### 2. Listar todos os usuários (GET)
-GET http://localhost:8080/api/usuarios
-
-### PASSO 2: Fazer Login (Autenticar)
-# @name loginRequest
-POST http://localhost:8080/api/auth/login
-Content-Type: application/json
-
-{
-    "email": "amigo@1232335email.com",
-    "senha": "122512323242"
-}
-
-### 3. Atualizar um usuário existente (PUT)
-PUT http://localhost:8080/api/usuarios/1
-Content-Type: application/json
-
-
-{
-    "nome": "Teste put1"
-}
-
-### 4. Deletar um usuário existente (DELETE)
-DELETE http://localhost:8080/api/usuarios/3
-
-
-
-
-
-
-
-
-
 ### PASSO 1: Criar um novo usuário
 # Corrigido para a porta 8080
 POST http://localhost:8080/api/usuarios
@@ -71,4 +28,23 @@ Content-Type: application/json
 @jwt = {{loginRequest.response.body.token}}
 
 GET http://localhost:8080/api/usuarios
+Authorization: Bearer {{jwt}}
+
+
+
+### 4. Atualizar um usuário existente (PUT)
+# Reutiliza o token da requisição 'loginRequest'
+PUT http://localhost:8080/api/usuarios/5
+Content-Type: application/json
+Authorization: Bearer {{jwt}}
+
+{
+    "nome": "Teste Put com token"
+}
+
+### --------------------------------------------------
+
+### 5. Deletar (omitir) um usuário (DELETE)
+# Reutiliza o token da requisição 'loginRequest'
+DELETE http://localhost:8080/api/usuarios/5
 Authorization: Bearer {{jwt}}
