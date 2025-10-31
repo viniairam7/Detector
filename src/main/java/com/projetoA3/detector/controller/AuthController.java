@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin // Permite que o frontend (rodando em localhost:3000) acesse esta API
 @RequestMapping("/api/auth")
 public class AuthController {
 

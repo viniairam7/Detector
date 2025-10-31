@@ -44,6 +44,9 @@ public class SecurityConfig {
                 
                 // Define as regras de autorização
                 .authorizeHttpRequests(auth -> auth
+                        // *** NOVO: Permite todas as requisições OPTIONS (pré-voo CORS) ***
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        
                         // Permite acesso público ao endpoint de login
                         .requestMatchers("/api/auth/login").permitAll()
                         // Permite acesso público ao endpoint de cadastro de usuário (POST em /api/usuarios)
@@ -51,6 +54,8 @@ public class SecurityConfig {
                         // Todas as outras requisições precisam estar autenticadas
                         .anyRequest().authenticated()
                 )
+                
+                // ... (exceptionHandling e sessionManagement)
                 
                 // Configura o tratamento de exceção para falhas de autenticação
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
