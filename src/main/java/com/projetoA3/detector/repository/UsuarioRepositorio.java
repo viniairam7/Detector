@@ -7,13 +7,10 @@ import java.util.Optional;
 
 public interface UsuarioRepositorio extends JpaRepository<Usuarios, Long> {
 
-    /**
-     * Busca um usuário pelo seu endereço de e-mail.
-     * O Spring Data JPA cria a consulta automaticamente a partir do nome do método.
-     * @param email O e-mail do usuário a ser pesquisado.
-     * @return um Optional contendo o usuário se encontrado, ou vazio se não encontrado.
-     */
+    
     Optional<Usuarios> findByEmail(String email);
+
+    Optional<Usuarios> findByEmailAndAtivoTrue(String email);
 
     // NOVO MÉTODO PARA BUSCAR APENAS USUÁRIOS ATIVOS
     List<Usuarios> findByAtivoTrue();

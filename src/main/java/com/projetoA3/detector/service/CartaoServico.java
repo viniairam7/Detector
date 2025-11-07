@@ -11,6 +11,6 @@ public interface CartaoServico {
      * @param cartaoDto Os dados do cartão a ser adicionado.
      * @return O objeto Cartao que foi salvo no banco.
      */
-    Cartao adicionarCartao(CartaoDTO cartaoDto);
+    Cartao adicionarCartao(CartaoDTO cartaoDto, String emailUsuarioLogado);
     List<CartaoDTO> buscarCartoesPorUsuarioEmail(String email);
 }

@@ -35,10 +35,9 @@ public class CartaoServicoImpl implements CartaoServico {
     }
 
     @Override
-    public Cartao adicionarCartao(CartaoDTO cartaoDTO) {
-     
-        Usuarios usuario = usuarioRepositorio.findById(cartaoDTO.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + cartaoDTO.getUsuarioId()));
+public Cartao adicionarCartao(CartaoDTO cartaoDTO, String emailUsuarioLogado) {
+    Usuarios usuario = usuarioRepositorio.findByEmailAndAtivoTrue(emailUsuarioLogado) // Use o método corrigido
+            .orElseThrow(() -> new RuntimeException("Usuário logado não encontrado: " + emailUsuarioLogado));
 
         
         Cartao novoCartao = new Cartao();
@@ -57,7 +56,6 @@ public class CartaoServicoImpl implements CartaoServico {
         dto.setNumero(cartao.getNumero());
         dto.setValidade(cartao.getValidade()); // <-- CORRIGIDO (era getDataValidade)
         dto.setNomeTitular(cartao.getNomeTitular());
-        dto.setUsuarioId(cartao.getUsuario().getId());
         // A linha do 'limite' foi removida pois o campo não existe
 
         return dto;

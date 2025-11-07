@@ -29,18 +29,22 @@ public class CartaoController {
 
     @PostMapping
     public ResponseEntity<Cartao> adicionarCartao(@RequestBody CartaoDTO cartaoDto) {
-        Cartao cartaoSalvo = cartaoServico.adicionarCartao(cartaoDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String emailUsuario = authentication.getName();
+
+        Cartao cartaoSalvo = cartaoServico.adicionarCartao(cartaoDto, emailUsuario);
         return new ResponseEntity<>(cartaoSalvo, HttpStatus.CREATED);
     }
 
     @GetMapping("/meus")
     public ResponseEntity<List<CartaoDTO>> getCartoesDoUsuario() {
-        
+
         // 1. Obtém o objeto de autenticação (contém o email do usuário logado)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        // 2. O 'getName()' na Autenticação é o email, conforme configurado no CustomUserDetailsService
-        String emailUsuario = authentication.getName(); 
+
+        // 2. O 'getName()' na Autenticação é o email, conforme configurado no
+        // CustomUserDetailsService
+        String emailUsuario = authentication.getName();
 
         // 3. Chama o serviço para buscar os cartões
         List<CartaoDTO> cartoes = cartaoServico.buscarCartoesPorUsuarioEmail(emailUsuario);

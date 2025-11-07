@@ -5,7 +5,7 @@ public class CartaoDTO {
     private String numero;
     private String validade;
     private String nomeTitular;
-    private Long usuarioId; 
+    
 
 
     public Long getId() {
@@ -40,11 +40,7 @@ public class CartaoDTO {
         this.nomeTitular = nomeTitular;
     }
 
-    public Long getUsuarioId() {
-        return usuarioId;
-    }
+   
 
-    public void setUsuarioId(Long usuarioId) {
-        this.usuarioId = usuarioId;
-    }
+   
 }
