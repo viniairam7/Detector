@@ -1,4 +1,3 @@
-// Local: src/main/java/com/projetoA3/detector/configuracao/SecurityConfig.java
 package com.projetoA3.detector.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -23,7 +27,7 @@ public class SecurityConfig {
     private JwtRequestFilter jwtRequestFilter;
     
     @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // Vamos criar este em breve
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -32,39 +36,49 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        // Este Bean é o que o AuthController precisava
         return authConfig.getAuthenticationManager();
+    }
+
+    // --- NOVA CONFIGURAÇÃO DE CORS ---
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Permite ligações do seu frontend em localhost:3000
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        // Permite os métodos (POST, GET, etc.) e cabeçalhos (Authorization)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+        // Permite o envio de credenciais (como o token)
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration); // Aplica esta configuração a todas as rotas
+        return source;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Desabilita o CSRF (Cross-Site Request Forgery)
+                // 1. APLICA A CONFIGURAÇÃO DE CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                
+                // 2. Desabilita o CSRF (necessário para APIs stateless)
                 .csrf(csrf -> csrf.disable())
                 
-                // Define as regras de autorização
+                // 3. Define as regras de autorização
                 .authorizeHttpRequests(auth -> auth
-                        // *** NOVO: Permite todas as requisições OPTIONS (pré-voo CORS) ***
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        
-                        // Permite acesso público ao endpoint de login
                         .requestMatchers("/api/auth/login").permitAll()
-                        // Permite acesso público ao endpoint de cadastro de usuário (POST em /api/usuarios)
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
-                        // Todas as outras requisições precisam estar autenticadas
                         .anyRequest().authenticated()
                 )
                 
-                // ... (exceptionHandling e sessionManagement)
-                
-                // Configura o tratamento de exceção para falhas de autenticação
+                // 4. Configura o tratamento de exceção
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-                // Configura a política de sessão para STATELESS (sem estado)
-                // O JWT não usa sessões do lado do servidor
+                // 5. Define a política de sessão como STATELESS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Adiciona nosso filtro JWT antes do filtro padrão de usuário/senha do Spring
+        // 6. Adiciona o filtro JWT
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
