@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/version").permitAll()
-                        .requestMatchers("/healthz").permitAll() // <-- ADICIONE ESTA LINHA
+                        .requestMatchers("/healthz").permitAll() 
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .anyRequest().authenticated()
                         )
