@@ -1,4 +1,3 @@
-// Local: src/main/java/com/projetoA3/detector/util/JwtTokenUtil.java
 package com.projetoA3.detector.util;
 
 import io.jsonwebtoken.Claims;
@@ -22,9 +21,10 @@ public class JwtTokenUtil implements Serializable {
     // Define o tempo de validade do token (ex: 5 horas)
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 horas em milissegundos
 
-    // Esta é a chave secreta. Em um projeto real, ela NUNCA deve ser
-    // escrita direto no código. Nós a colocaremos no application.properties.
-    @Value("${jwt.secret}")
+    // --- ESTA É A CORREÇÃO ---
+    // Agora ele procura pela variável de ambiente "JWT_SECRET" 
+    // que você definiu no OnRender.
+    @Value("${JWT_SECRET}")
     private String secret;
 
     // Retorna o e-mail (username) de dentro do token
