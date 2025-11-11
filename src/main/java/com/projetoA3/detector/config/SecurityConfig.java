@@ -25,7 +25,7 @@ public class SecurityConfig {
 
     @Autowired
     private JwtRequestFilter jwtRequestFilter;
-    
+
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -50,7 +50,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
         // Permite o envio de credenciais (como o token)
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // Aplica esta configuração a todas as rotas
         return source;
@@ -61,18 +61,19 @@ public class SecurityConfig {
         http
                 // 1. APLICA A CONFIGURAÇÃO DE CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                
+
                 // 2. Desabilita o CSRF (necessário para APIs stateless)
                 .csrf(csrf -> csrf.disable())
-                
+
                 // 3. Define as regras de autorização
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/version").permitAll() // <-- ESTA É A LINHA ADICIONADA
+                        .requestMatchers("/api/auth/version").permitAll()
+                        .requestMatchers("/healthz").permitAll() // <-- ADICIONE ESTA LINHA
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
                         .anyRequest().authenticated()
-                )
-                
+                        )
+
                 // 4. Configura o tratamento de exceção
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
