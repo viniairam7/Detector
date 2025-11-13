@@ -1,9 +1,9 @@
 package com.projetoA3.detector.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference; // Importe esta
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.math.BigDecimal; // Importar BigDecimal
 import java.util.List;
 
 @Entity
@@ -23,19 +23,26 @@ public class Cartao {
     @Column(nullable = false)
     private String nomeTitular;
 
-    // Apenas UMA declaração do campo 'usuario'
-    @JsonBackReference // Com a anotação
+    // --- NOVOS CAMPOS ADICIONADOS ---
+    @Column(nullable = true) // Permitir nulo por enquanto
+    private String localizacaoPadrao; // Ex: "São Paulo, SP"
+
+    @Column(nullable = true, precision = 10, scale = 2) // Permitir nulo
+    private BigDecimal gastoPadraoMensal; // Ex: 1500.00
+    // --- FIM DOS NOVOS CAMPOS ---
+
+    @JsonBackReference // Anotação mantida
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuarios usuario;
     
-    // Apenas UMA declaração do campo 'transacoes'
-    @JsonIgnore
-    @JsonManagedReference // Com a anotação
+    // @JsonIgnore removido (estava em conflito com @JsonManagedReference)
+    @JsonManagedReference // Anotação mantida
     @OneToMany(mappedBy = "cartao", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transacao> transacoes;
 
-    // Getters e Setters
+    // --- GETTERS E SETTERS ---
+
     public Long getId() {
         return id;
     }
@@ -82,5 +89,22 @@ public class Cartao {
 
     public void setTransacoes(List<Transacao> transacoes) {
         this.transacoes = transacoes;
+    }
+
+    // --- GETTERS E SETTERS PARA NOVOS CAMPOS ---
+    public String getLocalizacaoPadrao() {
+        return localizacaoPadrao;
+    }
+
+    public void setLocalizacaoPadrao(String localizacaoPadrao) {
+        this.localizacaoPadrao = localizacaoPadrao;
+    }
+
+    public BigDecimal getGastoPadraoMensal() {
+        return gastoPadraoMensal;
+    }
+
+    public void setGastoPadraoMensal(BigDecimal gastoPadraoMensal) {
+        this.gastoPadraoMensal = gastoPadraoMensal;
     }
 }
