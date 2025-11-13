@@ -7,14 +7,10 @@ import java.util.List;
 public interface CartaoServico {
 
     /**
-     * Adiciona um novo cartão a um usuário.
-     * O usuário é identificado pelo seu e-mail (vindo do token).
+     * Adiciona um novo cartão a um usuário existente.
+     * @param cartaoDto Os dados do cartão a ser adicionado.
+     * @return O objeto Cartao que foi salvo no banco.
      */
-    Cartao adicionarCartao(CartaoDTO cartaoDto, String userEmail);
-
-    /**
-     * Lista todos os cartões (em formato DTO) de um usuário específico.
-     * O usuário é identificado pelo seu e-mail (vindo do token).
-     */
+    Cartao adicionarCartao(CartaoDTO cartaoDto, String emailUsuarioLogado);
     List<CartaoDTO> buscarCartoesPorUsuarioEmail(String email);
 }
