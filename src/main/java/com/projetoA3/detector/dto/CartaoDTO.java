@@ -1,12 +1,24 @@
 package com.projetoA3.detector.dto;
+
+import java.math.BigDecimal; // Importar
+
 public class CartaoDTO {
 
+    // --- CAMPO ID ADICIONADO ---
+    // Necessário para o frontend (ex: <li key={cartao.id}>)
     private Long id; 
+    
     private String numero;
     private String validade;
     private String nomeTitular;
     
+    // --- NOVOS CAMPOS ADICIONADOS ---
+    private String localizacaoPadrao;
+    private BigDecimal gastoPadraoMensal;
+    // --- FIM DOS NOVOS CAMPOS ---
 
+
+    // --- GETTERS E SETTERS ---
 
     public Long getId() {
         return id;
@@ -40,7 +52,21 @@ public class CartaoDTO {
         this.nomeTitular = nomeTitular;
     }
 
-   
+    // --- GETTERS E SETTERS PARA NOVOS CAMPOS ---
+    public String getLocalizacaoPadrao() {
+        return localizacaoPadrao;
+    }
 
-   
+    public void setLocalizacaoPadrao(String localizacaoPadrao) {
+        this.localizacaoPadrao = localizacaoPadrao;
+    }
+
+    public BigDecimal getGastoPadraoMensal() {
+        return gastoPadraoMensal;
+    }
+
+    public void setGastoPadraoMensal(BigDecimal gastoPadraoMensal) {
+        this.gastoPadraoMensal = gastoPadraoMensal;
+    }
+}
 }
