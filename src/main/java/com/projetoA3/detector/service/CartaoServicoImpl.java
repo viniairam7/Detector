@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors; // Importar Collectors
+import java.util.stream.Collectors;
 
 @Service
-public class CartaoServicoImpl implements CartaoServico { // Implementa a interface correta
+public class CartaoServicoImpl implements CartaoServico {
 
     private final CartaoRepositorio cartaoRepositorio;
     private final UsuarioRepositorio usuarioRepositorio;
@@ -23,29 +23,6 @@ public class CartaoServicoImpl implements CartaoServico { // Implementa a interf
         this.usuarioRepositorio = usuarioRepositorio;
     }
 
-    // --- MÉTODO 1: ADICIONAR CARTÃO ---
-    // Atualizado para incluir os novos campos
-    @Override
-    public Cartao adicionarCartao(CartaoDTO cartaoDTO, String emailUsuarioLogado) {
-        Usuarios usuario = usuarioRepositorio.findByEmail(emailUsuarioLogado) 
-                .orElseThrow(() -> new RuntimeException("Usuário logado não encontrado: " + emailUsuarioLogado));
-        
-        Cartao novoCartao = new Cartao();
-        novoCartao.setNumero(cartaoDTO.getNumero());
-        novoCartao.setValidade(cartaoDTO.getValidade());
-        novoCartao.setNomeTitular(cartaoDTO.getNomeTitular());
-        novoCartao.setUsuario(usuario);
-        
-        // --- ADICIONA OS NOVOS CAMPOS ---
-        novoCartao.setLocalizacaoPadrao(cartaoDTO.getLocalizacaoPadrao());
-        novoCartao.setGastoPadraoMensal(cartaoDTO.getGastoPadraoMensal());
-        // --- FIM DA ADIÇÃO ---
-        
-        return cartaoRepositorio.save(novoCartao);
-    }
-
-    // --- MÉTODO 2: BUSCAR CARTÕES ---
-    // Corrigido para retornar List<CartaoDTO>
     @Override
     public List<CartaoDTO> buscarCartoesPorUsuarioEmail(String email) {
         // 1. Busca as entidades
@@ -57,21 +34,32 @@ public class CartaoServicoImpl implements CartaoServico { // Implementa a interf
                 .collect(Collectors.toList());
     }
 
-    // --- MÉTODO AUXILIAR PARA CONVERSÃO ---
-    // Converte a Entidade Cartao para o CartaoDTO
+    @Override
+public Cartao adicionarCartao(CartaoDTO cartaoDTO, String emailUsuarioLogado) {
+    Usuarios usuario = usuarioRepositorio.findByEmailAndAtivoTrue(emailUsuarioLogado) // Use o método corrigido
+            .orElseThrow(() -> new RuntimeException("Usuário logado não encontrado: " + emailUsuarioLogado));
+
+        
+        Cartao novoCartao = new Cartao();
+        novoCartao.setNumero(cartaoDTO.getNumero());
+        novoCartao.setValidade(cartaoDTO.getValidade());
+        novoCartao.setNomeTitular(cartaoDTO.getNomeTitular());
+        novoCartao.setUsuario(usuario);
+        return cartaoRepositorio.save(novoCartao);
+    }
+
+
     private CartaoDTO convertToDto(Cartao cartao) {
         CartaoDTO dto = new CartaoDTO();
         
-        dto.setId(cartao.getId()); // O ID que adicionámos ao DTO
+        dto.setId(cartao.getId()); // <-- CORRIGIDO (agora existe no DTO)
         dto.setNumero(cartao.getNumero());
-        dto.setValidade(cartao.getValidade());
+        dto.setValidade(cartao.getValidade()); // <-- CORRIGIDO (era getDataValidade)
         dto.setNomeTitular(cartao.getNomeTitular());
-        
-        // --- ADICIONA OS NOVOS CAMPOS AO DTO ---
-        dto.setLocalizacaoPadrao(cartao.getLocalizacaoPadrao());
-        dto.setGastoPadraoMensal(cartao.getGastoPadraoMensal());
-        // --- FIM DA ADIÇÃO ---
+        // A linha do 'limite' foi removida pois o campo não existe
 
         return dto;
     }
-}
+
+} 
+
