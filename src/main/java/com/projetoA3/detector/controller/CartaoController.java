@@ -1,23 +1,18 @@
 package com.projetoA3.detector.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.security.core.Authentication; // Importe este
-import org.springframework.security.core.context.SecurityContextHolder; // Importe este
-import org.springframework.web.bind.annotation.GetMapping; // Importe este
-
 import com.projetoA3.detector.dto.CartaoDTO;
 import com.projetoA3.detector.entity.Cartao;
 import com.projetoA3.detector.service.CartaoServico;
-import java.util.List; // <--- ADICIONE ESTA LINHA
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import java.security.Principal; // Importar Principal
+import org.springframework.web.bind.annotation.*;
+import java.util.List; // Importar List
 
 @RestController
 @RequestMapping("/api/cartoes")
+@CrossOrigin // Adicionado para permitir acesso do frontend
 public class CartaoController {
 
     private final CartaoServico cartaoServico;
@@ -27,30 +22,28 @@ public class CartaoController {
         this.cartaoServico = cartaoServico;
     }
 
+    // --- POST Endpoint (Adicionar Cartão) ---
+    // Atualizado para receber 'Principal' e passá-lo para o serviço
     @PostMapping
-    public ResponseEntity<Cartao> adicionarCartao(@RequestBody CartaoDTO cartaoDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String emailUsuario = authentication.getName();
-
-        Cartao cartaoSalvo = cartaoServico.adicionarCartao(cartaoDto, emailUsuario);
+    public ResponseEntity<Cartao> adicionarCartao(@RequestBody CartaoDTO cartaoDto, Principal principal) {
+        // Obtém o email do usuário logado a partir do token (via Principal)
+        String userEmail = principal.getName(); 
+        
+        // Chama o método de serviço atualizado
+        Cartao cartaoSalvo = cartaoServico.adicionarCartao(cartaoDto, userEmail);
         return new ResponseEntity<>(cartaoSalvo, HttpStatus.CREATED);
     }
 
-    @GetMapping("/meus")
-    public ResponseEntity<List<CartaoDTO>> getCartoesDoUsuario() {
-
-        // 1. Obtém o objeto de autenticação (contém o email do usuário logado)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // 2. O 'getName()' na Autenticação é o email, conforme configurado no
-        // CustomUserDetailsService
-        String emailUsuario = authentication.getName();
-
-        // 3. Chama o serviço para buscar os cartões
-        List<CartaoDTO> cartoes = cartaoServico.buscarCartoesPorUsuarioEmail(emailUsuario);
-
-        // 4. Retorna a lista de cartões (DTOs)
+    // --- GET Endpoint (Listar Cartões) ---
+    // Este é o endpoint que o DashboardPage.js chama
+    // Corrigido para esperar e retornar List<CartaoDTO>
+    @GetMapping("/meus-cartoes")
+    public ResponseEntity<List<CartaoDTO>> getMeusCartoes(Principal principal) {
+        String userEmail = principal.getName();
+        
+        // Este método agora retorna List<CartaoDTO>, o que é o correto
+        List<CartaoDTO> cartoes = cartaoServico.buscarCartoesPorUsuarioEmail(userEmail); 
+        
         return ResponseEntity.ok(cartoes);
     }
-
 }
