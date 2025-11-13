@@ -16,20 +16,11 @@ public interface TransacaoRepositorio extends JpaRepository<Transacao, Long> {
      */
     List<Transacao> findByCartaoIdOrderByDataHoraDesc(Long cartaoId);
 
-    // --- MÉTODO ADICIONADO ---
-    // Esta consulta é necessária para a página de "Ver Extrato".
-    // Ela garante que só listamos transações se o ID do cartão pertencer
-    // ao utilizador que está logado (identificado pelo email).
-    @Query("SELECT t FROM Transacao t WHERE t.cartao.id = :cartaoId AND t.cartao.usuario.email = :email ORDER BY t.dataHora DESC")
-    List<Transacao> findByCartaoIdAndCartaoUsuarioEmailOrderByDataHoraDesc(
-        @Param("cartaoId") Long cartaoId, 
-        @Param("email") String email
-    );
-    // --- FIM DO MÉTODO ADICIONADO ---
-
     /**
      * Calcula a distância em quilômetros (KM) entre duas transações usando PostGIS.
-     * (O seu código PostGIS foi mantido!)
+     * ST_Distance(geography, geography) calcula a distância em METROS.
+     * Dividimos por 1000 para converter para KM.
+     * Usamos 'geography' para cálculos precisos de lat/lon na Terra.
      */
     @Query(value = "SELECT ST_Distance(" +
                    "    (SELECT localizacao FROM transacoes WHERE id = :idTransacaoAtual)::geography, " +
@@ -40,5 +31,4 @@ public interface TransacaoRepositorio extends JpaRepository<Transacao, Long> {
             @Param("idTransacaoAtual") Long idTransacaoAtual,
             @Param("idTransacaoAnterior") Long idTransacaoAnterior
     );
-}
 }
