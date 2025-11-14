@@ -3,7 +3,7 @@ package com.projetoA3.detector.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // Importe o HttpMethod
+import org.springframework.http.HttpMethod; 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,20 +39,24 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // --- NOVA CONFIGURAÇÃO DE CORS ---
+    // --- CONFIGURAÇÃO DE CORS ATUALIZADA ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permite ligações do seu frontend em localhost:3000
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        // Permite os métodos (POST, GET, etc.) e cabeçalhos (Authorization)
+        
+        // (A MUDANÇA ESTÁ AQUI)
+        // Permite seu frontend local e qualquer subdomínio do ngrok
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "https://*.ngrok-free.app"
+        ));
+        
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
-        // Permite o envio de credenciais (como o token)
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplica esta configuração a todas as rotas
+        source.registerCorsConfiguration("/**", configuration); // Aplica a todas as rotas
         return source;
     }
 
@@ -62,7 +66,7 @@ public class SecurityConfig {
                 // 1. APLICA A CONFIGURAÇÃO DE CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 2. Desabilita o CSRF (necessário para APIs stateless)
+                // 2. Desabilita o CSRF
                 .csrf(csrf -> csrf.disable())
 
                 // 3. Define as regras de autorização
@@ -70,7 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/version").permitAll()
                         .requestMatchers("/healthz").permitAll() 
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll() // Rota de cadastro
                         .anyRequest().authenticated()
                         )
 
