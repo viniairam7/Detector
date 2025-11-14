@@ -3,7 +3,7 @@ package com.projetoA3.detector.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,14 +43,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // (A MUDANÇA ESTÁ AQUI)
         // Permite seu frontend local e qualquer subdomínio do ngrok
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "https://*.ngrok-free.app"
-        ));
-        
+                "http://localhost:3000",
+                "https://*.ngrok-free.app"));
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
         configuration.setAllowCredentials(true);
@@ -71,12 +70,12 @@ public class SecurityConfig {
 
                 // 3. Define as regras de autorização
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/version").permitAll()
-                        .requestMatchers("/healthz").permitAll() 
+                        .requestMatchers("/healthz").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll() // Rota de cadastro
-                        .anyRequest().authenticated()
-                        )
+                        .anyRequest().authenticated())
 
                 // 4. Configura o tratamento de exceção
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
