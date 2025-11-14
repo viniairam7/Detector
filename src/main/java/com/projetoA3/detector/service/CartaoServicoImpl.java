@@ -36,15 +36,32 @@ public class CartaoServicoImpl implements CartaoServico {
 
     @Override
 public Cartao adicionarCartao(CartaoDTO cartaoDTO, String emailUsuarioLogado) {
+
+    // --- INÍCIO DA NOVA LÓGICA DE VALIDAÇÃO ---
+        String numeroCartao = cartaoDTO.getNumero().replaceAll("\\s+", ""); // Remove espaços
+
+        // 1. Validação do Algoritmo de Luhn
+        if (!isLuhnValid(numeroCartao)) {
+            throw new IllegalArgumentException("Número de cartão inválido.");
+        }
+
+        // 2. Identificação da Bandeira
+        String bandeira = identificarBandeira(numeroCartao);
+        if ("DESCONHECIDA".equals(bandeira)) {
+            throw new IllegalArgumentException("Bandeira do cartão não suportada ou desconhecida.");
+        }
+        // --- FIM DA NOVA LÓGICA ---
+
     Usuarios usuario = usuarioRepositorio.findByEmailAndAtivoTrue(emailUsuarioLogado) // Use o método corrigido
             .orElseThrow(() -> new RuntimeException("Usuário logado não encontrado: " + emailUsuarioLogado));
 
         
         Cartao novoCartao = new Cartao();
-        novoCartao.setNumero(cartaoDTO.getNumero());
+        novoCartao.setNumero(numeroCartao); // Salva o número limpo
         novoCartao.setValidade(cartaoDTO.getValidade());
         novoCartao.setNomeTitular(cartaoDTO.getNomeTitular());
         novoCartao.setUsuario(usuario);
+        novoCartao.setBandeira(bandeira); // <-- SALVA A BANDEIRA
         return cartaoRepositorio.save(novoCartao);
     }
 
@@ -52,13 +69,56 @@ public Cartao adicionarCartao(CartaoDTO cartaoDTO, String emailUsuarioLogado) {
     private CartaoDTO convertToDto(Cartao cartao) {
         CartaoDTO dto = new CartaoDTO();
         
-        dto.setId(cartao.getId()); // <-- CORRIGIDO (agora existe no DTO)
+        dto.setId(cartao.getId()); 
         dto.setNumero(cartao.getNumero());
-        dto.setValidade(cartao.getValidade()); // <-- CORRIGIDO (era getDataValidade)
+        dto.setValidade(cartao.getValidade());
         dto.setNomeTitular(cartao.getNomeTitular());
+        dto.setBandeira(cartao.getBandeira()); // <-- ADICIONA A BANDEIRA NO RETORNO
         // A linha do 'limite' foi removida pois o campo não existe
 
         return dto;
+    }
+
+    //Validação usando o Algoritmo de Luhn (mod 10).
+    private boolean isLuhnValid(String numero) {
+        int nSoma = 0;
+        boolean isSegundo = false;
+        for (int i = numero.length() - 1; i >= 0; i--) {
+            int d = numero.charAt(i) - '0';
+            if (isSegundo) {
+                d = d * 2;
+            }
+            nSoma += d / 10;
+            nSoma += d % 10;
+            isSegundo = !isSegundo;
+        }
+        return (nSoma % 10 == 0);
+    }
+
+    
+    // Identificaçaõ de bandeira com base nos primeiros dígitos (IIN).
+     
+    private String identificarBandeira(String numero) {
+        if (numero.startsWith("4")) {
+            return "VISA";
+        }
+        if (numero.matches("^5[1-5].*")) { // 51 a 55
+            return "MASTERCARD";
+        }
+        if (numero.startsWith("34") || numero.startsWith("37")) {
+            return "AMEX";
+        }
+        if (numero.startsWith("6011") || numero.startsWith("65")) {
+             return "DISCOVER";
+        }
+        if (numero.startsWith("3")) {
+            return "JCB";
+        }
+         if (numero.startsWith("35")) {
+            return "ELO";
+        }
+        
+        return "DESCONHECIDA";
     }
 
 } 

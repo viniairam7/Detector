@@ -5,9 +5,8 @@ public class CartaoDTO {
     private String numero;
     private String validade;
     private String nomeTitular;
+    private String bandeira; 
     
-
-
     public Long getId() {
         return id;
     }
@@ -38,6 +37,14 @@ public class CartaoDTO {
 
     public void setNomeTitular(String nomeTitular) {
         this.nomeTitular = nomeTitular;
+    }
+
+    public String getBandeira() {
+        return bandeira;
+    }
+
+    public void setBandeira(String bandeira) {
+        this.bandeira = bandeira;
     }
 
    

@@ -23,6 +23,9 @@ public class Cartao {
     @Column(nullable = false)
     private String nomeTitular;
 
+    @Column
+    private String bandeira; // bandeira
+
     // Apenas UMA declaração do campo 'usuario'
     @JsonBackReference // Com a anotação
     @ManyToOne(fetch = FetchType.LAZY)
@@ -82,5 +85,13 @@ public class Cartao {
 
     public void setTransacoes(List<Transacao> transacoes) {
         this.transacoes = transacoes;
+    }
+
+    public String getBandeira() {
+        return bandeira;
+    }
+
+    public void setBandeira(String bandeira) {
+        this.bandeira = bandeira;
     }
 }
