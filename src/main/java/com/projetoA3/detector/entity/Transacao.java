@@ -3,6 +3,8 @@ package com.projetoA3.detector.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference; // Importe esta
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+// <-- IMPORTAR
+// <-- IMPORTAR
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,6 +39,10 @@ public class Transacao {
 
     @Column
     private String ipAddress;
+
+    @Enumerated(EnumType.STRING) // Salva o nome do enum (PENDING, COMPLETED) no DB
+    @Column(nullable = false)
+    private TransacaoStatus status;
 
     
     // Getters e Setters
@@ -95,5 +101,13 @@ public class Transacao {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public TransacaoStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TransacaoStatus status) {
+        this.status = status;
     }
 }

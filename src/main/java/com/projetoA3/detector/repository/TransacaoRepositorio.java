@@ -17,18 +17,18 @@ public interface TransacaoRepositorio extends JpaRepository<Transacao, Long> {
     List<Transacao> findByCartaoIdOrderByDataHoraDesc(Long cartaoId);
 
     /**
-     * Calcula a distância em quilômetros (KM) entre duas transações usando PostGIS.
-     * ST_Distance(geography, geography) calcula a distância em METROS.
-     * Dividimos por 1000 para converter para KM.
-     * Usamos 'geography' para cálculos precisos de lat/lon na Terra.
+     * Calcula a distância em KM entre dois pontos geográficos (lat/lon).
+     * Usado para comparar a localização da Loja (Ponto A) com a do Usuário (Ponto B).
      */
     @Query(value = "SELECT ST_Distance(" +
-                   "    (SELECT localizacao FROM transacoes WHERE id = :idTransacaoAtual)::geography, " +
-                   "    (SELECT localizacao FROM transacoes WHERE id = :idTransacaoAnterior)::geography " +
+                   "    ST_MakePoint(:lonPontoA, :latPontoA)::geography, " +
+                   "    ST_MakePoint(:lonPontoB, :latPontoB)::geography " +
                    ") / 1000.0",
            nativeQuery = true)
-    Double calcularDistanciaEmKm(
-            @Param("idTransacaoAtual") Long idTransacaoAtual,
-            @Param("idTransacaoAnterior") Long idTransacaoAnterior
+    Double calcularDistanciaEntrePontosKm(
+            @Param("lonPontoA") double lonPontoA,
+            @Param("latPontoA") double latPontoA,
+            @Param("lonPontoB") double lonPontoB,
+            @Param("latPontoB") double latPontoB
     );
 }

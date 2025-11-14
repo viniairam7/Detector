@@ -3,6 +3,8 @@ package com.projetoA3.detector.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore; // <-- IMPORTE ESTA LINHA
 import jakarta.persistence.*;
 import java.util.List;
+import java.math.BigDecimal; // <-- IMPORTAR
+import java.time.LocalTime; // <-- IMPORTAR
 
 @Entity
 @Table(name = "usuarios")
@@ -20,6 +22,18 @@ public class Usuarios {
 
     @Column(nullable = false)
     private String senha;
+
+    @Column
+    private BigDecimal mediaGasto; // Média de valor por transação
+
+    @Column
+    private int totalTransacoesParaMedia; // Contador para ajudar no cálculo da média
+
+    @Column
+    private LocalTime horarioHabitualInicio; // Ex: 08:00
+
+    @Column
+    private LocalTime horarioHabitualFim; // Ex: 22:00
 
     // A anotação @JsonManagedReference foi trocada por @JsonIgnore
     // para quebrar o loop de serialização de forma mais simples
@@ -79,5 +93,37 @@ public class Usuarios {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public BigDecimal getMediaGasto() {
+        return mediaGasto;
+    }
+
+    public void setMediaGasto(BigDecimal mediaGasto) {
+        this.mediaGasto = mediaGasto;
+    }
+
+    public int getTotalTransacoesParaMedia() {
+        return totalTransacoesParaMedia;
+    }
+
+    public void setTotalTransacoesParaMedia(int totalTransacoesParaMedia) {
+        this.totalTransacoesParaMedia = totalTransacoesParaMedia;
+    }
+
+    public LocalTime getHorarioHabitualInicio() {
+        return horarioHabitualInicio;
+    }
+
+    public void setHorarioHabitualInicio(LocalTime horarioHabitualInicio) {
+        this.horarioHabitualInicio = horarioHabitualInicio;
+    }
+
+    public LocalTime getHorarioHabitualFim() {
+        return horarioHabitualFim;
+    }
+
+    public void setHorarioHabitualFim(LocalTime horarioHabitualFim) {
+        this.horarioHabitualFim = horarioHabitualFim;
     }
 }

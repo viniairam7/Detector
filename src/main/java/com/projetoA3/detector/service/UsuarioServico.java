@@ -4,6 +4,7 @@ import com.projetoA3.detector.dto.UsuarioDTO;
 import com.projetoA3.detector.entity.HistoricoUsuario;
 import com.projetoA3.detector.entity.UsuarioOmitido;
 import com.projetoA3.detector.entity.Usuarios;
+import com.projetoA3.detector.entity.Transacao;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +27,6 @@ public interface UsuarioServico {
     boolean omitirUsuario(Long id);
     
     List<UsuarioOmitido> listarOmitidos();
+
+    void atualizarPadroesUsuario(Usuarios usuario, Transacao novaTransacao);
 }

@@ -10,6 +10,8 @@ public class TransacaoDTO {
     private double latitude;
     private double longitude;
     private String ipAddress;
+    private double latitudeUsuario;
+    private double longitudeUsuario;
 
     // Getters e Setters
     public BigDecimal getValor() {
@@ -58,6 +60,22 @@ public class TransacaoDTO {
 
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    public double getLatitudeUsuario() {
+        return latitudeUsuario;
+    }
+
+    public void setLatitudeUsuario(double latitudeUsuario) {
+        this.latitudeUsuario = latitudeUsuario;
+    }
+
+    public double getLongitudeUsuario() {
+        return longitudeUsuario;
+    }
+
+    public void setLongitudeUsuario(double longitudeUsuario) {
+        this.longitudeUsuario = longitudeUsuario;
     }
 
 }

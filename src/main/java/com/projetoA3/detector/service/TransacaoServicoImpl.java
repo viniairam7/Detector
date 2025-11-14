@@ -1,57 +1,104 @@
 package com.projetoA3.detector.service;
 
 import com.projetoA3.detector.dto.TransacaoDTO;
+import com.projetoA3.detector.dto.TransacaoResponseDTO; // <-- IMPORTAR
 import com.projetoA3.detector.entity.Cartao;
 import com.projetoA3.detector.entity.Transacao;
+import com.projetoA3.detector.entity.TransacaoStatus; // <-- IMPORTAR
+import com.projetoA3.detector.entity.Usuarios;
 import com.projetoA3.detector.repository.CartaoRepositorio;
 import com.projetoA3.detector.repository.TransacaoRepositorio;
-import com.projetoA3.detector.exception.FraudDetectedException; // IMPORTA A EXCEÇÃO
+// import com.projetoA3.detector.exception.FraudDetectedException; // <-- NÃO VAMOS MAIS USAR
 
-// Imports necessários para a nova lógica
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Importe este
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration; // Importe este
+import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.time.LocalDateTime;
-import java.util.List; // Importe este
+// import java.util.List; // Não é mais necessário para a lógica antiga
+import java.util.Optional; // <-- IMPORTAR
 
 @Service
 public class TransacaoServicoImpl implements TransacaoServico {
 
     private final TransacaoRepositorio transacaoRepositorio;
     private final CartaoRepositorio cartaoRepositorio;
+    private final UsuarioServico usuarioServico; 
     
-    // SRID 4326 é o padrão para coordenadas GPS (WGS84)
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
     
-    // Velocidade máxima de viagem em km/h (ex: avião comercial)
-    private static final double VELOCIDADE_MAXIMA_KMH = 900.0; 
+    // --- LIMITES DAS REGRAS DE FRAUDE ---
+    private static final double FATOR_DESVIO_GASTO = 3.0; 
+    private static final double DISTANCIA_MAXIMA_KM_PERMITIDA = 25.0; 
 
     @Autowired
-    public TransacaoServicoImpl(TransacaoRepositorio transacaoRepositorio, CartaoRepositorio cartaoRepositorio) {
+    public TransacaoServicoImpl(TransacaoRepositorio transacaoRepositorio, 
+                                CartaoRepositorio cartaoRepositorio,
+                                UsuarioServico usuarioServico) {
         this.transacaoRepositorio = transacaoRepositorio;
         this.cartaoRepositorio = cartaoRepositorio;
+        this.usuarioServico = usuarioServico;
     }
 
     @Override
-    @Transactional // Garante que tudo (salvar e checar) ocorra na mesma transação
-    public Transacao registrarTransacao(TransacaoDTO transacaoDto) {
+    @Transactional
+    public TransacaoResponseDTO registrarTransacao(TransacaoDTO transacaoDto) {
         
-        // 1. Encontrar o cartão
         Cartao cartao = cartaoRepositorio.findById(transacaoDto.getCartaoId())
                 .orElseThrow(() -> new RuntimeException("Cartão não encontrado com o ID: " + transacaoDto.getCartaoId()));
+        Usuarios usuario = cartao.getUsuario();
 
-        // 2. Criar o objeto Point a partir da lat/lon
+        // --- LÓGICA DE DETECÇÃO (NÃO MAIS LANÇA EXCEÇÃO) ---
+        String mensagemFraude = null; // Armazena a mensagem de fraude, se houver
+
+        // REGRA TIPO 1: Gasto Atípico
+        if (usuario.getMediaGasto() != null && usuario.getMediaGasto().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal mediaHabitual = usuario.getMediaGasto();
+            BigDecimal limiteGasto = mediaHabitual.multiply(new BigDecimal(FATOR_DESVIO_GASTO));
+            
+            if (transacaoDto.getValor().compareTo(limiteGasto) > 0) {
+                mensagemFraude = String.format("ALERTA: Valor (R$ %.2f) muito acima da sua média (R$ %.2f).",
+                                  transacaoDto.getValor(), mediaHabitual);
+            }
+        }
+
+        // REGRA TIPO 2: Horário Atípico (só checa se a regra 1 não pegou)
+        if (mensagemFraude == null && usuario.getHorarioHabitualInicio() != null && usuario.getHorarioHabitualFim() != null) {
+            LocalTime horaTransacao = LocalTime.now();
+            if (horaTransacao.isBefore(usuario.getHorarioHabitualInicio()) || 
+                horaTransacao.isAfter(usuario.getHorarioHabitualFim())) {
+                
+                mensagemFraude = String.format("ALERTA: Compra às %s, fora do seu horário habitual (%s - %s).",
+                                  horaTransacao, usuario.getHorarioHabitualInicio(), usuario.getHorarioHabitualFim());
+            }
+        }
+
+        // REGRA TIPO 3: Localização (checa se regras 1 e 2 não pegaram)
+        // Esta é a regra de maior importância, vamos checá-la por último
+        if (mensagemFraude == null) {
+            Double distanciaKm = transacaoRepositorio.calcularDistanciaEntrePontosKm(
+                transacaoDto.getLongitude(), transacaoDto.getLatitude(),
+                transacaoDto.getLongitudeUsuario(), transacaoDto.getLatitudeUsuario()
+            );
+
+            if (distanciaKm != null && distanciaKm > DISTANCIA_MAXIMA_KM_PERMITIDA) {
+                mensagemFraude = String.format("ALERTA: Compra a %.2f km da sua localização atual.", distanciaKm);
+            }
+        }
+        
+        // --- FIM DAS DETECÇÕES ---
+
+        // 2. Criar e salvar a transação
         Point localizacaoPonto = geometryFactory.createPoint(
             new Coordinate(transacaoDto.getLongitude(), transacaoDto.getLatitude())
         );
 
-        // 3. Criar e salvar a nova transação
         Transacao novaTransacao = new Transacao();
         novaTransacao.setValor(transacaoDto.getValor());
         novaTransacao.setEstabelecimento(transacaoDto.getEstabelecimento());
@@ -60,52 +107,64 @@ public class TransacaoServicoImpl implements TransacaoServico {
         novaTransacao.setLocalizacao(localizacaoPonto);
         novaTransacao.setIpAddress(transacaoDto.getIpAddress());
         
-        // Salva a transação. Se uma exceção for lançada abaixo, o @Transactional
-        // vai reverter (fazer rollback) deste save.
-        Transacao transacaoSalva = transacaoRepositorio.save(novaTransacao);
-
-        // --- INÍCIO DA LÓGICA DE DETECÇÃO DE FRAUDE ---
-        
-        // 4. Buscar o histórico de transações deste cartão (já ordenado pela data)
-        List<Transacao> historico = transacaoRepositorio.findByCartaoIdOrderByDataHoraDesc(cartao.getId());
-
-        // 5. Verificar se existe uma transação anterior para comparar
-        if (historico.size() > 1) {
-            Transacao transacaoAnterior = historico.get(1); // 0 é a atual, 1 é a anterior
-
-            // 6. Calcular a distância em KM usando a query nativa do PostGIS
-            Double distanciaKm = transacaoRepositorio.calcularDistanciaEmKm(
-                transacaoSalva.getId(), 
-                transacaoAnterior.getId()
-            );
-
-            // 7. Calcular o tempo decorrido em horas
-            long segundosDecorridos = Duration.between(transacaoAnterior.getDataHora(), transacaoSalva.getDataHora()).toSeconds();
-            double horasDecorridas = segundosDecorridos / 3600.0;
-
-            // 8. Calcular a velocidade (evitar divisão por zero se o tempo for muito curto)
-            // Ignora se for menos de 1 minuto (para evitar falsos positivos)
-            if (distanciaKm != null && horasDecorridas > (1.0 / 60.0)) { 
-                double velocidadeKmh = distanciaKm / horasDecorridas;
-
-                System.out.println("--- DEBUG DE VELOCIDADE ---");
-                System.out.println("Distância: " + distanciaKm + " km");
-                System.out.println("Tempo: " + horasDecorridas + " horas");
-                System.out.println("Velocidade Calculada: " + velocidadeKmh + " km/h");
-                System.out.println("---------------------------");
-
-                if (velocidadeKmh > VELOCIDADE_MAXIMA_KMH) {
-                    // *** MUDANÇA PRINCIPAL AQUI ***
-                    // Em vez de imprimir no log, lançamos a exceção.
-                    // Isso vai parar o método e retornar um erro 400 para o usuário.
-                    throw new FraudDetectedException("ALERTA DE FRAUDE: VIAGEM IMPOSSÍVEL DETECTADA!");
-                }
-            }
+        // --- DECISÃO DE STATUS ---
+        if (mensagemFraude != null) {
+            // FRAUDE DETECTADA! Salva como PENDENTE.
+            novaTransacao.setStatus(TransacaoStatus.PENDING);
+            Transacao transacaoSalva = transacaoRepositorio.save(novaTransacao);
+            
+            // Retorna a resposta especial para o frontend
+            return new TransacaoResponseDTO("PENDING_CONFIRMATION", mensagemFraude, transacaoSalva);
+        } else {
+            // NENHUMA FRAUDE. Salva como COMPLETA.
+            novaTransacao.setStatus(TransacaoStatus.COMPLETED);
+            Transacao transacaoSalva = transacaoRepositorio.save(novaTransacao);
+            
+            // ATUALIZA OS PADRÕES (pois a transação é válida)
+            usuarioServico.atualizarPadroesUsuario(usuario, transacaoSalva);
+            
+            // Retorna a resposta padrão
+            return new TransacaoResponseDTO("COMPLETED", "Transação registrada com sucesso.", transacaoSalva);
         }
-        
-        // --- FIM DA LÓGICA DE DETECÇÃO DE FRAUDE ---
+    }
 
-        // Se nenhuma exceção foi lançada, a transação é válida.
-        return transacaoSalva;
+    // --- IMPLEMENTAÇÃO DOS NOVOS MÉTODOS ---
+
+    @Override
+    @Transactional
+    public Transacao confirmarTransacao(Long transacaoId) {
+        Transacao transacao = transacaoRepositorio.findById(transacaoId)
+                .orElseThrow(() -> new RuntimeException("Transação não encontrada."));
+
+        if (transacao.getStatus() != TransacaoStatus.PENDING) {
+            throw new IllegalStateException("Esta transação não está pendente de confirmação.");
+        }
+
+        // Atualiza o status
+        transacao.setStatus(TransacaoStatus.COMPLETED);
+        
+        // **IMPORTANTE**: Agora que foi confirmada, ATUALIZAMOS O PADRÃO do usuário
+        Usuarios usuario = transacao.getCartao().getUsuario();
+        usuarioServico.atualizarPadroesUsuario(usuario, transacao);
+        
+        return transacaoRepositorio.save(transacao);
+    }
+
+    @Override
+    @Transactional
+    public Transacao negarTransacao(Long transacaoId) {
+        Transacao transacao = transacaoRepositorio.findById(transacaoId)
+                .orElseThrow(() -> new RuntimeException("Transação não encontrada."));
+
+        if (transacao.getStatus() != TransacaoStatus.PENDING) {
+            throw new IllegalStateException("Esta transação não está pendente de confirmação.");
+        }
+
+        // Apenas atualiza o status
+        transacao.setStatus(TransacaoStatus.DENIED);
+        
+        // Não atualizamos o padrão do usuário, pois foi negada
+        
+        return transacaoRepositorio.save(transacao);
     }
 }

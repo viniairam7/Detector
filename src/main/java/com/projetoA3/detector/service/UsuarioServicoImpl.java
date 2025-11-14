@@ -12,6 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.projetoA3.detector.entity.Transacao;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +29,9 @@ public class UsuarioServicoImpl implements UsuarioServico {
 
     @Autowired
     public UsuarioServicoImpl(UsuarioRepositorio usuarioRepositorio,
-                              HistoricoUsuarioRepositorio historicoUsuarioRepositorio,
-                              UsuarioOmitidoRepositorio usuarioOmitidoRepositorio,
-                              PasswordEncoder passwordEncoder) {
+            HistoricoUsuarioRepositorio historicoUsuarioRepositorio,
+            UsuarioOmitidoRepositorio usuarioOmitidoRepositorio,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepositorio = usuarioRepositorio;
         this.historicoUsuarioRepositorio = historicoUsuarioRepositorio;
         this.usuarioOmitidoRepositorio = usuarioOmitidoRepositorio;
@@ -96,5 +100,63 @@ public class UsuarioServicoImpl implements UsuarioServico {
     @Override
     public List<UsuarioOmitido> listarOmitidos() {
         return usuarioOmitidoRepositorio.findAll();
+    }
+
+    // --- IMPLEMENTAÇÃO DO NOVO MÉTODO ---
+    @Override
+    @Transactional
+    public void atualizarPadroesUsuario(Usuarios usuario, Transacao novaTransacao) {
+
+        // 1. Recalcular Média de Gasto
+        recalcularMediaGasto(usuario, novaTransacao.getValor());
+
+        // 2. Ajustar Horário
+        ajustarHorarioHabitual(usuario, novaTransacao.getDataHora().toLocalTime());
+
+        // 3. Salvar as alterações no usuário
+        usuarioRepositorio.save(usuario);
+    }
+
+    private void recalcularMediaGasto(Usuarios usuario, BigDecimal valorNovaTransacao) {
+        BigDecimal mediaAntiga = usuario.getMediaGasto();
+        int totalTransacoes = usuario.getTotalTransacoesParaMedia();
+        BigDecimal novaMedia;
+
+        if (mediaAntiga == null || totalTransacoes == 0) {
+            // Caso da primeira transação
+            novaMedia = valorNovaTransacao;
+            usuario.setTotalTransacoesParaMedia(1);
+        } else {
+            // Cálculo da média ponderada com BigDecimal
+            BigDecimal totalAnterior = mediaAntiga.multiply(new BigDecimal(totalTransacoes));
+            BigDecimal novoTotal = totalAnterior.add(valorNovaTransacao);
+            int novoContador = totalTransacoes + 1;
+
+            // Divide com 2 casas decimais e arredondamento padrão
+            novaMedia = novoTotal.divide(new BigDecimal(novoContador), 2, RoundingMode.HALF_UP);
+
+            usuario.setTotalTransacoesParaMedia(novoContador);
+        }
+
+        usuario.setMediaGasto(novaMedia);
+    }
+
+    private void ajustarHorarioHabitual(Usuarios usuario, LocalTime horaTransacao) {
+        LocalTime horarioInicio = usuario.getHorarioHabitualInicio();
+        LocalTime horarioFim = usuario.getHorarioHabitualFim();
+
+        if (horarioInicio == null || horarioFim == null) {
+            // Caso da primeira transação, define a janela inicial
+            usuario.setHorarioHabitualInicio(horaTransacao);
+            usuario.setHorarioHabitualFim(horaTransacao);
+        } else {
+            // Alarga a janela se necessário
+            if (horaTransacao.isBefore(horarioInicio)) {
+                usuario.setHorarioHabitualInicio(horaTransacao);
+            }
+            if (horaTransacao.isAfter(horarioFim)) {
+                usuario.setHorarioHabitualFim(horaTransacao);
+            }
+        }
     }
 }
